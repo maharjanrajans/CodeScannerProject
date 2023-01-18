@@ -13,6 +13,7 @@ import {
   Text,
   View,
   ScrollView,
+  ActivityIndicator,
 } from 'react-native';
 import {useCameraDevices} from 'react-native-vision-camera';
 import {Camera} from 'react-native-vision-camera';
@@ -49,11 +50,9 @@ export default function App() {
   }, [barcodes]);
 
   const toggleActiveState = async () => {
-    if (barcodes) {
-      setTimeout(() => {
-        setIsScanned(true);
-      }, 3000);
-    }
+    setTimeout(() => {
+      setIsScanned(true);
+    }, 3000);
   };
 
   return (
@@ -70,14 +69,24 @@ export default function App() {
             frameProcessorFps={5}
           />
         </View>
-        <Button title="Rescan" onPress={() => setIsScanned(false)} />
+        <View style={styles.buttonStyle}>
+          {isScanned ? (
+            <Button title="Rescan" onPress={() => setIsScanned(false)} />
+          ) : (
+            <ActivityIndicator animating={true} />
+          )}
+        </View>
         <ScrollView style={styles.scannedTextContent}>
-          <Text>Scanned Codes:</Text>
-          {barcodes.map((barcode, idx) => (
-            <Text key={idx} style={styles.barcodeTextURL}>
-              {barcode.displayValue}
-            </Text>
-          ))}
+          <Text style={styles.title}>Scanned Codes:</Text>
+          {barcodes.length ? (
+            barcodes.map((barcode, idx) => (
+              <Text key={idx} style={styles.barcodeTextURL}>
+                {barcode.displayValue}
+              </Text>
+            ))
+          ) : (
+            <Text>No valid codes scanned!</Text>
+          )}
         </ScrollView>
       </SafeAreaView>
     )
@@ -87,6 +96,9 @@ export default function App() {
 const styles = StyleSheet.create({
   mainConatiner: {
     flex: 1,
+  },
+  buttonStyle: {
+    paddingHorizontal: 20,
   },
   barcodeTextURL: {
     fontSize: 20,
@@ -99,6 +111,11 @@ const styles = StyleSheet.create({
   },
   scannedTextContent: {
     flex: 1,
-    margin: 10,
+    margin: 20,
+  },
+  title: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    marginVertical: 10,
   },
 });
