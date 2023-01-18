@@ -6,13 +6,22 @@
  */
 
 import React from 'react';
-import {SafeAreaView, StyleSheet, Text, View} from 'react-native';
+import {
+  Button,
+  SafeAreaView,
+  StyleSheet,
+  Text,
+  View,
+  ScrollView,
+} from 'react-native';
 import {useCameraDevices} from 'react-native-vision-camera';
 import {Camera} from 'react-native-vision-camera';
 import {useScanBarcodes, BarcodeFormat} from 'vision-camera-code-scanner';
 
 export default function App() {
   const [hasPermission, setHasPermission] = React.useState(false);
+  const [isScanned, setIsScanned] = React.useState(false);
+
   const devices = useCameraDevices();
   const device = devices.back;
 
@@ -32,6 +41,21 @@ export default function App() {
     console.log(barcodes);
   }, [barcodes]);
 
+  React.useEffect(() => {
+    toggleActiveState();
+    return () => {
+      barcodes;
+    };
+  }, [barcodes]);
+
+  const toggleActiveState = async () => {
+    if (barcodes) {
+      setTimeout(() => {
+        setIsScanned(true);
+      }, 3000);
+    }
+  };
+
   return (
     device != null &&
     hasPermission && (
@@ -40,19 +64,21 @@ export default function App() {
           <Camera
             style={StyleSheet.absoluteFillObject}
             device={device}
-            isActive={true}
+            // isActive={true}
+            isActive={!isScanned}
             frameProcessor={frameProcessor}
             frameProcessorFps={5}
           />
         </View>
-        <View style={styles.scannedTextContent}>
+        <Button title="Rescan" onPress={() => setIsScanned(false)} />
+        <ScrollView style={styles.scannedTextContent}>
           <Text>Scanned Codes:</Text>
           {barcodes.map((barcode, idx) => (
             <Text key={idx} style={styles.barcodeTextURL}>
               {barcode.displayValue}
             </Text>
           ))}
-        </View>
+        </ScrollView>
       </SafeAreaView>
     )
   );
