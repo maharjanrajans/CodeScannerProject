@@ -14,6 +14,7 @@ import {
   View,
   ScrollView,
   ActivityIndicator,
+  Alert,
 } from 'react-native';
 import {useCameraDevices} from 'react-native-vision-camera';
 import {Camera} from 'react-native-vision-camera';
@@ -35,6 +36,12 @@ export default function App() {
     (async () => {
       const status = await Camera.requestCameraPermission();
       setHasPermission(status === 'authorized');
+      if (status === 'denied') {
+        Alert.alert(
+          'App needs access to your Camera!',
+          'Please go to setting and turn on the access to camera, to be able to scan the codes, Thanks!',
+        );
+      }
     })();
   }, []);
 
